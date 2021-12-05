@@ -41,6 +41,7 @@ router.get('/login', function(req, res, next) {
         console.log("Success", JSON.stringify(data));
       }
     });
+    res.send("User logged in!");
 });
 
 router.get('/logout', function(req, res, next) {
@@ -51,6 +52,7 @@ router.get('/logout', function(req, res, next) {
         console.log("Success", JSON.stringify(data));
       }
     });
+    res.send("User logged out!");
 });
 
 module.exports = router;
