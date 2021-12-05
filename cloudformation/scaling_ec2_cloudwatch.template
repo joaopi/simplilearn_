@@ -122,8 +122,8 @@
            "Name" : "AutoScalingGroupName",
            "Value" : { "Ref" : "NodejsGroup" }
          } ],
-        "ComparisonOperator" : "GreaterThanThreshold",
-        "MetricName" : "CPUUtilization"
+         "ComparisonOperator" : "GreaterThanThreshold",
+         "MetricName" : "CPUUtilization"
       }
     },
     "CPUAlarmLow" : {
@@ -144,7 +144,42 @@
         "MetricName" : "CPUUtilization"
       }
     },
-
+    "LoggedUsersAlarmHigh" : {
+       "Type" : "AWS::CloudWatch::Alarm",
+       "Properties" : {
+         "EvaluationPeriods" : "1",
+         "Statistic" : "Average",
+         "Threshold" : "10",
+         "AlarmDescription" : "Alarm if logged users too high or metric disappears indicating instance is down",
+         "Period" : "60",
+         "AlarmActions" : [ { "Ref" : "scaleOutPolicy" } ],
+         "Namespace" : "SITE/TRAFFIC",
+         # "Dimensions" : [ {
+         #  "Name" : "AutoScalingGroupName",
+         #  "Value" : { "Ref" : "NodejsGroup" }
+         # } ],
+         "ComparisonOperator" : "GreaterThanThreshold",
+         "MetricName" : "USERS_LOGGED"
+      }
+    },
+    "LoggedUsersAlarmLow" : {
+       "Type" : "AWS::CloudWatch::Alarm",
+       "Properties" : {
+         "EvaluationPeriods" : "1",
+         "Statistic" : "Average",
+         "Threshold" : "2",
+         "AlarmDescription" : "Alarm if logged users too low",
+         "Period" : "60",
+         "AlarmActions" : [ { "Ref" : "scaleDownPolicy" } ],
+         "Namespace" : "SITE/TRAFFIC",
+         # "Dimensions" : [ {
+         #  "Name" : "AutoScalingGroupName",
+         #  "Value" : { "Ref" : "NodejsGroup" }
+         # } ],
+         "ComparisonOperator" : "LessThanThreshold",
+         "MetricName" : "USERS_LOGGED"
+      }
+    },
     "LaunchConfig" : {
       "Type" : "AWS::AutoScaling::LaunchConfiguration",
       "Metadata" : {
