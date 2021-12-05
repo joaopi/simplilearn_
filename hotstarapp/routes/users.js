@@ -1,7 +1,9 @@
 var express = require('express');
 var AWS = require('aws-sdk');
 // Set the region 
-AWS.config.update({region: 'REGION'});
+console.log("Region: ", process.env.AWS_REGION);
+
+AWS.config.update({region: process.env.AWS_REGION});
 
 // Create CloudWatch service object
 var cw = new AWS.CloudWatch();
