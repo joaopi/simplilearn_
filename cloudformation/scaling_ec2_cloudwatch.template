@@ -171,7 +171,7 @@
           "}\n",
 
           "## # Start cfn-init to Install all Metadata content (packages, sources, files, commands and services )\n",
-          "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r NodejsGroup",
+          "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r LaunchConfig",
           "   --configsets GetNodeAndInstall ",
           "   --region ", { "Ref" : "AWS::Region" }, " > /tmp/cfn-init.log 2>&1 || error_exit $(</tmp/cfn-init.log)\n",
 
