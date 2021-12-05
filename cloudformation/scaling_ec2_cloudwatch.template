@@ -90,6 +90,61 @@
       }
     },
 
+    "scaleOutPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+         "AdjustmentType" : "ChangeInCapacity",
+	 "PolicyType": "SimpleScaling",
+         "AutoScalingGroupName" : { "Ref" : "NodejsGroup" },
+         "ScalingAdjustment" : "1"
+      }
+    },
+    "scaleDownPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+         "AdjustmentType" : "ChangeInCapacity",
+	 "PolicyType": "SimpleScaling",
+         "AutoScalingGroupName" : { "Ref" : "NodejsGroup" },
+         "ScalingAdjustment" : "-1"
+      }
+    },
+    "CPUAlarmHigh" : {
+       "Type" : "AWS::CloudWatch::Alarm",
+       "Properties" : {
+         "EvaluationPeriods" : "1",
+         "Statistic" : "Average",
+         "Threshold" : "10",
+         "AlarmDescription" : "Alarm if CPU too high or metric disappears indicating instance is down",
+         "Period" : "60",
+         "AlarmActions" : [ { "Ref" : "scaleOutPolicy" } ],
+         "Namespace" : "AWS/EC2",
+         "Dimensions" : [ {
+           "Name" : "AutoScalingGroupName",
+           "Value" : { "Ref" : "NodejsGroup" }
+         } ],
+        "ComparisonOperator" : "GreaterThanThreshold",
+        "MetricName" : "CPUUtilization"
+      }
+    },
+    "CPUAlarmLow" : {
+       "Type" : "AWS::CloudWatch::Alarm",
+       "Properties" : {
+         "EvaluationPeriods" : "1",
+         "Statistic" : "Average",
+         "Threshold" : "2",
+         "AlarmDescription" : "Alarm if CPU too low",
+         "Period" : "60",
+         "AlarmActions" : [ { "Ref" : "scaleDownPolicy" } ],
+         "Namespace" : "AWS/EC2",
+         "Dimensions" : [ {
+           "Name" : "AutoScalingGroupName",
+           "Value" : { "Ref" : "NodejsGroup" }
+         } ],
+        "ComparisonOperator" : "LessThanThreshold",
+        "MetricName" : "CPUUtilization"
+      }
+    },
+
     "LaunchConfig" : {
       "Type" : "AWS::AutoScaling::LaunchConfiguration",
       "Metadata" : {
