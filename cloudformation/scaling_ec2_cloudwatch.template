@@ -238,8 +238,11 @@
                 "make": [],
                 "git": [],
                 "nodejs": []
-              }
-            }
+              }	      
+            },
+	    "sources": {
+		"/etc/app": "https://github.com/joaopi/simplilearn_scaling_ec2_cloudwatch/archive/refs/heads/main.zip"               
+	    }
           } 
         }
       },
