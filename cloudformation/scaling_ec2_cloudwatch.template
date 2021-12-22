@@ -70,14 +70,15 @@
       "Properties" : {
         "VPCZoneIdentifier" : { "Ref" : "Subnets" },  
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
+        "DesiredCapacity": "1",
         "MinSize" : "1",
         "MaxSize" : "3",
         "TargetGroupARNs" : [ { "Ref" : "ALBTargetGroup" } ]
       },
       "CreationPolicy" : {
         "ResourceSignal" : {
-          "Timeout" : "PT15M",
-          "Count"   : "2"
+          "Timeout" : "PT30M",
+          "Count"   : "1"
         }
       },
       "UpdatePolicy": {
@@ -186,52 +187,68 @@
         "Comment" : "Install a simple NodeJS application",  
         "AWS::CloudFormation::Init" : {
           "configSet" : {
-            "GetNodeAndInstall": ["GetNode", "InstallNode"]
+            "GetNodeAndInstall": ["install_cfn", "GetNode", "InstallNode"]
           },
-          "GetNode": {    
-            "files" : {
-              "/etc/cfn/cfn-hup.conf" : {
-                "content" : { "Fn::Join" : ["", [
-                  "[main]\n",
-                  "stack=", { "Ref" : "AWS::StackId" }, "\n",
-                  "region=", { "Ref" : "AWS::Region" }, "\n"
-                ]]},
-                "mode"    : "000400",
-                "owner"   : "root",
-                "group"   : "root"
-              },
-
-              "/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
-                "content": { "Fn::Join" : ["", [
-                  "[cfn-auto-reloader-hook]\n",
-                  "triggers=post.update\n",
-                  "path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init\n",
-                  "action=/opt/aws/bin/cfn-init -v ",
-                  "         --stack ", { "Ref" : "AWS::StackName" },
-                  "         --resource LaunchConfig ",
-                  "         --configsets GetNodeAndInstall ",
-                  "         --region ", { "Ref" : "AWS::Region" }, "\n",
-                  "runas=root\n"
-                ]]},
-		"mode"    : "000400",
-                "owner"   : "root",
-                "group"   : "root"
-              }
-            },
-            "commands" : {
-              "getNode" : {
-                "command" : "curl -sL https://rpm.nodesource.com/setup_lts.x | sudo bash -",
-		"cwd": "/home/ec2-user"
-              }
-            },
-            "services" : {
-              "sysvinit" : {
-                "cfn-hup" : { "enabled" : "true", "ensureRunning" : "true",
-                              "files" : ["/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf"]}
-              }
-            }
-          },
-	  "InstallNode": {    
+	  "install_cfn": {
+		"files": {
+			"/etc/cfn/cfn-hup.conf": {
+				"content": {
+					"Fn::Join": ["", [
+						"[main]\n",
+						"stack=", {
+							"Ref": "AWS::StackId"
+						}, "\n",
+						"region=", {
+							"Ref": "AWS::Region"
+						}, "\n"
+					]]
+				},
+				"mode": "000400",
+				"owner": "root",
+				"group": "root"
+			},
+			"/etc/cfn/hooks.d/cfn-auto-reloader.conf": {
+				"content": {
+					"Fn::Join": ["", [
+						"[cfn-auto-reloader-hook]\n",
+						"triggers=post.update\n",
+						"path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init\n",
+						"action=/opt/aws/bin/cfn-init -v ",
+						"         --stack ", {
+							"Ref": "AWS::StackName"
+						},
+						"         --resource LaunchConfig ",
+						"         --configsets GetNodeAndInstall ",
+						"         --region ", {
+							"Ref": "AWS::Region"
+						}, "\n",
+						"runas=root\n"
+					]]
+				},
+				"mode": "000400",
+				"owner": "root",
+				"group": "root"
+			}
+		},
+		"services": {
+			"sysvinit": {
+				"cfn-hup": {
+					"enabled": "true",
+					"ensureRunning": "true",
+					"files": ["/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf"]
+				}
+			}
+		}
+	},
+	"GetNode": {
+		"commands": {
+			"getNode": {
+				"command": "curl -sL https://rpm.nodesource.com/setup_lts.x | sudo bash -",
+				"cwd": "/home/ec2-user"
+			}
+		},
+	},
+	"InstallNode": {    
 	    "packages": {
               "yum": {
                 "gcc-c++": [],
