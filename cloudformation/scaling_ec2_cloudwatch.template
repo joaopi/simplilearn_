@@ -186,7 +186,7 @@
         "Comment" : "Install a simple NodeJS application",  
         "AWS::CloudFormation::Init" : {
           "configSet" : {
-            "GetNodeAndInstall": ["GetNode", "InstallNode"],
+            "GetNodeAndInstall": ["GetNode", "InstallNode"]
           },
           "GetNode": {    
             "files" : {
@@ -336,7 +336,9 @@
         "GroupDescription" : "Enable SSH access and HTTP access on the configured port",
         "SecurityGroupIngress" : 
           [ { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "SSHLocation"} },
-            { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"} ],
+            { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0",
+	      "SourceSecurityGroupId" : {"Fn::Select" : [0, {"Fn::GetAtt" : ["ApplicationLoadBalancer", "SecurityGroups"]}]}
+	    } ],
         "VpcId" : { "Ref" : "VpcId" }          
       }
     }
