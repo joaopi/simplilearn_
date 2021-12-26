@@ -33,6 +33,23 @@
       "Default": "0.0.0.0/0",
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
       "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    
+    "CPUPolicySCaleOutTargetValue":{
+      "Description" : "CPU load scaling out threshold",
+      "Default": "10",
+      "Type":"String"
+    },
+    
+    "CPUPolicySCaleInTargetValue":{
+      "Description" : "CPU load scaling in threshold",
+       "Default": "2",
+       "Type":"String"
+    },
+    "ALBRequestCountTargetValue":{
+      "Description" : "Request count scaling threshold",
+      "Default": "3",
+      "Type":"String"
     }
   },
 
@@ -90,7 +107,40 @@
         }
       }
     },
-
+    "ALBRequestCountPolicy":{
+      "Type":"AWS::AutoScaling::ScalingPolicy",
+      "Properties":{
+        "AutoScalingGroupName" : { "Ref" : "NodejsGroup" },
+        "PolicyType":"TargetTrackingScaling",
+        "TargetTrackingConfiguration":{
+          "PredefinedMetricSpecification":{
+            "PredefinedMetricType":"ALBRequestCountPerTarget",
+            "ResourceLabel":{
+              "Fn::Join":[
+                "/",
+                [
+                  {
+                    "Fn::GetAtt":[
+                      "ApplicationLoadBalancer",
+                      "LoadBalancerFullName"
+                    ]
+                  },
+                  {
+                    "Fn::GetAtt":[
+                      "ALBTargetGroup",
+                      "TargetGroupFullName"
+                    ]
+                  }
+                ]
+              ]
+            }
+          },
+          "TargetValue":{
+            "Ref":"ALBRequestCountTargetValue"
+          }
+        }
+      }
+    }
     "scaleOutPolicy" : {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
       "Properties" : {
@@ -114,7 +164,9 @@
        "Properties" : {
          "EvaluationPeriods" : "1",
          "Statistic" : "Average",
-         "Threshold" : "10",
+         "Threshold" : {
+            "Ref":"CPUPolicySCaleOutTargetValue"
+          },
          "AlarmDescription" : "Alarm if CPU too high or metric disappears indicating instance is down",
          "Period" : "60",
          "AlarmActions" : [ { "Ref" : "scaleOutPolicy" } ],
@@ -132,7 +184,9 @@
        "Properties" : {
          "EvaluationPeriods" : "1",
          "Statistic" : "Average",
-         "Threshold" : "2",
+         "Threshold" : {
+            "Ref":"CPUPolicySCaleInTargetValue"
+          },
          "AlarmDescription" : "Alarm if CPU too low",
          "Period" : "60",
          "AlarmActions" : [ { "Ref" : "scaleDownPolicy" } ],
