@@ -1,6 +1,8 @@
 # simplilearn_scaling_ec2_cloudwatch
 Simplilearn project: Scaling the EC2 Instances Based on Monitored CloudWatch Metrics
 
+With this project, EC2 Instances serve a simulated HTTP application Hotstar, and are automatically scaled if the request count increases above a configured threshold or if the CPU load in the instances also increases above a configured threshold.
+
 The Project is composed of a Cloud Formation Stack template that creates:
   * An autoscaling group that can scale from 1 to 3 instances
   * A Launch Configuration that creates EC2 t2.micro and starts an httpd service and creates a html page to simulate an application.
